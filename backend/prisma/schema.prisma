@@ -28,7 +28,7 @@ model Employee {
   id            Int            @id @default(autoincrement())
   nama          String
   email         String         @unique
-  no_telp       String
+  no_telp       String         @unique
   jabatan       String
   status        EmployeeStatus @default(PART_TIME)
   tanggal_masuk DateTime       @db.Date
@@ -42,8 +42,7 @@ model Employee {
 
 model Department {
   id        Int        @id @default(autoincrement())
-  nama      String     @unique
-  deskripsi String?
+  nama      String
   employees Employee[]
 
   @@map("departments")
