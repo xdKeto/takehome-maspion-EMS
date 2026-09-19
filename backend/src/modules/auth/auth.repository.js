@@ -1,6 +1,6 @@
 import prisma from "../../database/index.js"
 
-const findUser = async (data) => {
+const findUserByUsername = async (data) => {
   const user = await prisma.user.findUnique({
     where: {
       username: data.username
@@ -12,9 +12,12 @@ const findUser = async (data) => {
 
 const createUser = async (data) => {
   const user = await prisma.user.create({
-    username: data.username,
-    password: data.password
+    data: {
+      username: data.username, password: data.password, role: data.role
+    }
   })
+
+  return user
 }
 
-export { findUser, createUser }
+export { findUserByUsername, createUser }

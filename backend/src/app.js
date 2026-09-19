@@ -1,6 +1,7 @@
 import express from "express"
 import { employeeRouter } from "./modules/employee/employee.controller"
 import { departmentRouter } from "./modules/department/department.controller"
+import { authRouter } from "./modules/auth/auth.controller"
 import { rateLimiter } from "./middlewares/rate-limiter.middleware"
 import { errorHandler } from "./middlewares/error-handler.middleware"
 
@@ -10,7 +11,7 @@ app.use(express.json())
 app.use(rateLimiter(10, 100)) // max 100 in 10min
 
 // daftar routes
-// app.use("/api/auth", authRoutes)
+app.use("/api/auth", authRouter)
 app.use("/api/employees", employeeRouter)
 app.use("/api/departments", departmentRouter)
 

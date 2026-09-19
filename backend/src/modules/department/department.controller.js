@@ -1,9 +1,10 @@
 import express from "express"
 import { getAllDepartments } from "./department.service"
+import { checkToken } from "../../middlewares/auth.middleware"
 
 const router = express.Router()
 
-router.get("/", async (req, res, next) => {
+router.get("/", checkToken, async (req, res, next) => {
   try {
     const departments = await getAllDepartments()
 

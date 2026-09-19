@@ -1,5 +1,5 @@
 import { ErrorHandler } from "../../middlewares/error-handler.middleware"
-import { addEmployee, editEmployee, findEmployeeByID, findEmployeeByKey, getEmployees as getEmployeesRepo } from "./employee.repository"
+import { addEmployee, editEmployee, findEmployeeByID, findEmployeeByKey, getEmployees as getEmployeesRepo, deleteEmployee as deleteEmployeeRepo } from "./employee.repository"
 
 const getEmployees = async (params) => {
   const employees = await getEmployeesRepo(params)
@@ -43,9 +43,17 @@ const updateEmployee = async (id, data) => {
   return employee
 }
 
+const deleteEmployee = async (id) => {
+  await getEmployeeByID(id)
+  await deleteEmployeeRepo(id)
+
+  return
+}
+
 export {
   getEmployees,
   getEmployeeByID,
   createEmployee,
-  updateEmployee
+  updateEmployee,
+  deleteEmployee
 }

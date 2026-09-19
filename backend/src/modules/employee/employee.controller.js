@@ -1,10 +1,11 @@
 import express from "express"
-import { createEmployee, getEmployeeByID, getEmployees, updateEmployee } from "./employee.service"
+import { createEmployee, deleteEmployee, getEmployeeByID, getEmployees, updateEmployee } from "./employee.service"
 import { ErrorHandler } from "../../middlewares/error-handler.middleware"
+import { checkToken, checkRole } from "../../middlewares/auth.middleware"
 
 const router = express.Router()
 
-router.get("/", async (req, res, next) => {
+router.get("/", checkToken, async (req, res, next) => {
   try {
     const {
       search = "",
@@ -61,7 +62,7 @@ router.get("/", async (req, res, next) => {
   }
 })
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", checkToken, async (req, res, next) => {
   try {
     const id = Number(req.params.id)
     if (!Number.isInteger(id) || id <= 0) {
@@ -78,7 +79,8 @@ router.get("/:id", async (req, res, next) => {
   }
 })
 
-router.post("/", async (req, res, next) => {
+
+router.post("/", checkToken, checkRole("admin"), async (req, res, next) => {
   const data = req.body
   try {
     const errors = validateEmployeeData(data)
@@ -96,7 +98,8 @@ router.post("/", async (req, res, next) => {
   }
 })
 
-router.put("/:id", async (req, res, next) => {
+
+router.put("/:id", checkToken, checkRole("admin"), async (req, res, next) => {
   const data = req.body
 
   try {
@@ -114,6 +117,23 @@ router.put("/:id", async (req, res, next) => {
 
     res.status(200).json({
       success: true, data: employee, message: "Employee updated successfully"
+    })
+  } catch (e) {
+    next(e)
+  }
+})
+
+router.delete("/:id", checkToken, checkRole("admin"), async (req, res, next) => {
+  try {
+    const id = Number(req.params.id)
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new ErrorHandler("ID must be a positive number", 400)
+    }
+
+    await deleteEmployee(id)
+
+    res.status(200).json({
+      success: true, message: "Employee deleted successfully"
     })
   } catch (e) {
     next(e)

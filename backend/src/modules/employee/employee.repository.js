@@ -73,10 +73,21 @@ const editEmployee = async (id, data) => {
   return employee
 }
 
+const deleteEmployee = async (id) => {
+  await prisma.employee.delete({
+    where: {
+      id: id
+    }
+  })
+  
+  return
+}
+
 export {
   getEmployees,
   findEmployeeByID,
   findEmployeeByKey,
   addEmployee,
   editEmployee,
+  deleteEmployee
 }
