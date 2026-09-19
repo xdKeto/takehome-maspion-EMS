@@ -1,4 +1,4 @@
-import prisma from "../../db/index.js"
+import prisma from "../../db/index"
 
 const getEmployees = async () => {
   const employees = prisma.employee.findMany()
@@ -7,7 +7,7 @@ const getEmployees = async () => {
 }
 
 const findEmployeeByID = async (id) => {
-  const employee = prisma.employee.findUnique({
+  const employee = prisma.employee.findUniqueOrThrow({
     where: {
       id: id
     }

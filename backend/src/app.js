@@ -1,12 +1,12 @@
 import express from "express"
 import { employeeRouter } from "./modules/employee/employee.controller"
 import { departmentRouter } from "./modules/department/department.controller"
+import { rateLimiter } from "./middlewares/rate-limit.middleware"
 
 const app = express()
 
-// middlewares disini, ratelimit
 app.use(express.json())
-// rate limit
+app.use(rateLimiter(10, 100))
 
 // daftar routes
 // app.use("/api/auth", authRoutes)
