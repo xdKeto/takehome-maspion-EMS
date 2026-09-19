@@ -1,29 +1,32 @@
 import prisma from "../../db/index"
 
-const getEmployees = async () => {
-  const employees = prisma.employee.findMany()
+const getEmployees = async({
+  where = {},
+  order_by = { id: "asc"}
+}) => {
+  const employees = await prisma.employee.findMany({
+    where, order_by,
+    include: {
+      department: {
+        select: {
+          id: true,
+          nama: true
+        }
+      }
+    }
+  })
 
   return employees
 }
 
 const findEmployeeByID = async (id) => {
-  const employee = prisma.employee.findUniqueOrThrow({
+  const employee = prisma.employee.findUnique({
     where: {
       id: id
     }
   })
 
   return employee
-}
-
-const findEmployeeEmail = async (email) => {
-  const email = prisma.employee.findFirst({
-    where: {
-      email: email
-    }
-  })
-
-  return email
 }
 
 const addEmployee = async (data) => {
@@ -34,7 +37,7 @@ const addEmployee = async (data) => {
       no_telp: data.no_telp,
       jabatan: data.jabatan,
       status: data.status,
-      tanggal_masuk: DateTime.now(),
+      tanggal_masuk: new Date(),
       image: data.image ?? null,
       department_id: data.department_id
     }

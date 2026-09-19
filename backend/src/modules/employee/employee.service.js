@@ -1,8 +1,7 @@
-import { getProductByID } from "../../../../../learnExpress/src/product/product.service"
-import { addEmployee, editEmployee, findEmployeeByID, findEmployeeEmail, getEmployees } from "./employee.repository"
+import { addEmployee, editEmployee, findEmployeeByID, findEmployeeEmail, getEmployees as getEmployeesRepo } from "./employee.repository"
 
-const getEmployees = async () => {
-  const employees = await getEmployees()
+const getEmployees = async (params) => {
+  const employees = await getEmployeesRepo(params)
 
   return employees
 }
@@ -12,7 +11,7 @@ const getEmployeeByID = async (id) => {
 
   if (!employee) {
     const err = "Employee not found"
-    err.status = 400
+    err.status = 404
     throw err
   }
 
@@ -33,7 +32,7 @@ const createEmployee = async (data) => {
 }
 
 const updateEmployee = async (id, data) => {
-  await getProductByID(id)
+  await getEmployeeByID(id)
   
   const employee = await editEmployee(id, data)
 
