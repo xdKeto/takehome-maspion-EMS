@@ -1,11 +1,11 @@
-import prisma from "../../db/index"
+import prisma from "../../database/index"
 
-const getEmployees = async({
+const getEmployees = async ({
   where = {},
-  order_by = { id: "asc"}
+  orderBy = { id: "asc" }
 }) => {
   const employees = await prisma.employee.findMany({
-    where, order_by,
+    where, orderBy,
     include: {
       department: {
         select: {
@@ -20,10 +20,18 @@ const getEmployees = async({
 }
 
 const findEmployeeByID = async (id) => {
-  const employee = prisma.employee.findUnique({
+  const employee = await prisma.employee.findUnique({
     where: {
       id: id
     }
+  })
+
+  return employee
+}
+
+const findEmployeeByKey = async (where) => {
+  const employee = await prisma.employee.findFirst({
+    where
   })
 
   return employee
@@ -68,7 +76,7 @@ const editEmployee = async (id, data) => {
 export {
   getEmployees,
   findEmployeeByID,
-  findEmployeeEmail,
+  findEmployeeByKey,
   addEmployee,
-  editEmployee
+  editEmployee,
 }

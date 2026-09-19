@@ -1,12 +1,13 @@
 import express from "express"
 import { employeeRouter } from "./modules/employee/employee.controller"
 import { departmentRouter } from "./modules/department/department.controller"
-import { rateLimiter } from "./middlewares/rate-limit.middleware"
+import { rateLimiter } from "./middlewares/rate-limiter.middleware"
+import { errorHandler } from "./middlewares/error-handler.middleware"
 
 const app = express()
 
 app.use(express.json())
-app.use(rateLimiter(10, 100))
+app.use(rateLimiter(10, 100)) // max 100 in 10min
 
 // daftar routes
 // app.use("/api/auth", authRoutes)
@@ -19,6 +20,7 @@ app.get("/health", (req, res) => {
   })
 })
 
-// error handler, app.use(errorHandler)
+// handlers
+app.use(errorHandler)
 
 export default app

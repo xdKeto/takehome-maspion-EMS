@@ -1,4 +1,4 @@
-import prisma from "../../prisma/client"
+import prisma from "../../database/index"
 
 const getDepartments = async () => {
   const departments = prisma.department.findMany()

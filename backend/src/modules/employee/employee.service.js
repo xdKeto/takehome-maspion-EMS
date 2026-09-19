@@ -1,4 +1,5 @@
-import { addEmployee, editEmployee, findEmployeeByID, findEmployeeEmail, getEmployees as getEmployeesRepo } from "./employee.repository"
+import { ErrorHandler } from "../../middlewares/error-handler.middleware"
+import { addEmployee, editEmployee, findEmployeeByID, findEmployeeByKey, getEmployees as getEmployeesRepo } from "./employee.repository"
 
 const getEmployees = async (params) => {
   const employees = await getEmployeesRepo(params)
@@ -7,23 +8,26 @@ const getEmployees = async (params) => {
 }
 
 const getEmployeeByID = async (id) => {
+
   const employee = await findEmployeeByID(id)
 
   if (!employee) {
-    const err = "Employee not found"
-    err.status = 404
-    throw err
+    throw new ErrorHandler("Employee not found", 404)
   }
 
   return employee
 }
 
 const createEmployee = async (data) => {
-  const email = await findEmployeeEmail(data.email)
-  if (email) {
-    const err = "Email already exists"
-    err.status = 400
-    throw err
+  const check = await findEmployeeByKey({
+    OR: [
+      { email: data.email },
+      { no_telp: data.no_telp }
+    ]
+  })
+
+  if (check) {
+    throw new ErrorHandler("Employee already exists (same email/phone)", 409)
   }
 
   const employee = await addEmployee(data)
@@ -33,7 +37,7 @@ const createEmployee = async (data) => {
 
 const updateEmployee = async (id, data) => {
   await getEmployeeByID(id)
-  
+
   const employee = await editEmployee(id, data)
 
   return employee

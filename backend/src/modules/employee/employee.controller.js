@@ -1,9 +1,10 @@
 import express from "express"
 import { createEmployee, getEmployeeByID, getEmployees, updateEmployee } from "./employee.service"
+import { ErrorHandler } from "../../middlewares/error-handler.middleware"
 
 const router = express.Router()
 
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
   try {
     const {
       search = "",
@@ -17,25 +18,23 @@ router.get("/", async (req, res) => {
     const sorting_fields = ["id", "nama", "jabatan", "status", "tanggal_masuk"]
     const res_sortBy = sorting_fields.includes(sort_by) ? sort_by : "id" //default sort ke id
     const res_sortOrder = sort_order === "desc" ? "desc" : "asc"
-    const status_enum = ["FULL_TIME", "PART_TIME", "KELUAR"]
 
     // search
-    const search_fields = ["nama", "email", "no_telp", "jabatan", "department"]
+    const search_fields = ["nama", "email", "no_telp", "jabatan"]
     const where = {}
 
     if (status) {
       if (!status_enum.includes(status)) {
-        return res.status(400).send("Invalid employee status")
+        throw new ErrorHandler("Invalid employee status", 400)
       }
 
       where.status = status
     }
 
     if (department_id) {
-      const id = parseInt(department_id, 10)
-
-      if (isNan(id) || id <= 0) {
-        return res.status(400).send("department_id must be a positive integer")
+      const id = Number(department_id)
+      if (!Number.isInteger(id) || id <= 0) {
+        throw new ErrorHandler("department_id must be a positive integer", 400)
       }
 
       where.department_id = id
@@ -49,82 +48,113 @@ router.get("/", async (req, res) => {
 
     const employees = await getEmployees({
       where,
-      order_by: {
+      orderBy: {
         [res_sortBy]: res_sortOrder
       }
     })
 
-    res.status(200).send(employees)
+    res.status(200).json({
+      success: true, data: employees
+    })
   } catch (e) {
-    res.status(500).send("Failed to fetch all employees")
+    next(e)
   }
 })
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
   try {
-    const id = parseInt(req.params.id)
-    if (isNan(id) || id <= 0) {
-      const err = "ID must be a positive number"
-      err.status = 400
-      throw err
+    const id = Number(req.params.id)
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new ErrorHandler("ID must be a positive number", 400)
     }
 
     const employee = await getEmployeeByID(id)
 
-    res.status(200).send(employee)
+    res.status(200).json({
+      success: true, data: employee
+    })
   } catch (e) {
-    res.status(e.status ?? 500).send(e.message ?? "Failed to fetch employee")
+    next(e)
   }
 })
 
-router.post("/", async (req, res) => {
+router.post("/", async (req, res, next) => {
   const data = req.body
   try {
-    if (!(data.nama && data.email && data.no_telp && data.jabatan && data.status && data.department_id)) {
-      const err = "Required fields are missing!"
-      err.status = 400
-      throw err
+    const errors = validateEmployeeData(data)
+    if (Object.keys(errors).length > 0) {
+      throw new ErrorHandler("Validation failed", 400, errors)
     }
 
     const employee = await createEmployee(data)
 
-    res.status(201).send({
-      data: employee,
-      message: "Employee added successfully"
+    res.status(201).json({
+      success: true, data: employee, message: "Employee added successfully"
     })
   } catch (e) {
-    res.status(e.status ?? 500).send(e.message ?? "Failed to add employee")
+    next(e)
   }
 })
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", async (req, res, next) => {
   const data = req.body
 
   try {
-    if (!(data.nama && data.email && data.no_telp && data.jabatan && data.status && data.department_id)) {
-      const err = "Required fields are missing!"
-      err.status = 400
-      throw err
+    const errors = validateEmployeeData(data)
+    if (Object.keys(errors).length > 0) {
+      throw new ErrorHandler("Validation failed", 400, errors)
     }
 
-    const id = parseInt(req.params.id)
-    if (isNan(id) || id <= 0) {
-      const err = "ID must be a positive number"
-      err.status = 400
-      throw err
+    const id = Number(req.params.id)
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new ErrorHandler("ID must be a positive number", 400)
     }
 
     const employee = await updateEmployee(id, data)
 
-    res.status(200).send({
-      data: employee,
-      message: "Employee updated successfully"
+    res.status(200).json({
+      success: true, data: employee, message: "Employee updated successfully"
     })
   } catch (e) {
-    res.status(e.status ?? 500).send(e.message ?? "Failed to update employee")
+    next(e)
   }
 })
 
 export {
   router as employeeRouter
+}
+
+const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const status_enum = ["FULL_TIME", "PART_TIME", "KELUAR"]
+
+function validateEmployeeData(data = {}) {
+  const errors = {}
+  const required = [
+    { key: "nama", label: "Nama" },
+    { key: "email", label: "Email" },
+    { key: "no_telp", label: "NoTelp" },
+    { key: "jabatan", label: "Jabatan" },
+    { key: "status", label: "Status" },
+  ]
+
+  for (const i of required) {
+    const value = data[i.key]
+    if (typeof value !== "string" || value.trim() === "") {
+      errors[i.key] = `${i.label} field is required`
+    }
+  }
+
+  if (typeof data.status === "string" && data.status.trim() !== "" && !status_enum.includes(data.status)) {
+    errors.status = "Invalid employee status"
+  }
+
+  if (typeof data.email === "string" && data.email.trim() !== "" && !email_regex.test(data.email.trim())) {
+    errors.email = "Invalid email format"
+  }
+
+  if (!Number.isInteger(data.department_id) || data.department_id <= 0) {
+    errors.department_id = "Department ID msy be a positive integer"
+  }
+
+  return errors
 }
