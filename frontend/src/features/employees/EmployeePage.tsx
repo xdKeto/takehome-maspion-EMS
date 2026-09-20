@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "@/features/auth/AuthContext"
 import EmptyState from "@/components/shared/EmptyState"
 import ErrorState from "@/components/shared/ErrorState"
 import LoadingState from "@/components/shared/LoadingState"
 import { listDepartments, listEmployees, type EmployeeQuery, type EmployeeSortField } from "./employee.api"
+import { exportEmployeesCsv } from "./employee.api"
 import EmployeeDetailDialog from "./EmployeeDetailDialog"
 import EmployeeFormDialog from "./EmployeeFormDialog"
 import EmployeeTable from "./EmployeeTable"
+import DeleteEmployeeDialog from "./DeleteEmployeeDialog"
 import type { Department, Employee, EmployeeStatus } from "./employee.type"
 
 const defaultQuery: EmployeeQuery = {
@@ -42,6 +45,10 @@ const EmployeePage = () => {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
+  const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null)
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const requestIdRef = useRef(0)
 
   const loadEmployees = useCallback(async () => {
@@ -135,6 +142,18 @@ const EmployeePage = () => {
     setFormOpen(true)
   }
 
+  const handleExport = async () => {
+    setExporting(true)
+    setExportError(null)
+    try {
+      await exportEmployeesCsv()
+    } catch (requestError) {
+      setExportError(requestError instanceof Error ? requestError.message : "Export failed")
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <section className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -142,12 +161,20 @@ const EmployeePage = () => {
           <p className="text-sm text-muted-foreground">Employee Management</p>
           <h1 className="font-heading text-3xl font-bold">Employees</h1>
         </div>
-        {isAdmin && (
-          <Button type="button" onClick={openCreateDialog} className="w-full sm:w-auto">
-            Tambah Employee
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button type="button" variant="outline" onClick={() => void handleExport()} disabled={exporting} className="w-full sm:w-auto">
+            {exporting ? "Exporting..." : "Export CSV"}
           </Button>
-        )}
+          {isAdmin && (
+            <Button type="button" onClick={openCreateDialog} className="w-full sm:w-auto">
+              Add Employee
+            </Button>
+          )}
+        </div>
       </div>
+
+      {notice && <Alert><AlertDescription>{notice}</AlertDescription></Alert>}
+      {exportError && <Alert variant="destructive"><AlertDescription>{exportError}</AlertDescription></Alert>}
 
       <div className="space-y-3 rounded-xl border bg-card p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -236,6 +263,7 @@ const EmployeePage = () => {
           employees={employees}
           onView={(employee) => setSelectedEmployeeId(employee.id)}
           onEdit={openEditDialog}
+          onDelete={isAdmin ? setDeletingEmployee : undefined}
           isAdmin={isAdmin}
         />
       )}
@@ -255,6 +283,21 @@ const EmployeePage = () => {
           departments={departments}
           onOpenChange={setFormOpen}
           onSaved={() => void loadEmployees()}
+        />
+      )}
+
+      {isAdmin && (
+        <DeleteEmployeeDialog
+          open={deletingEmployee !== null}
+          employee={deletingEmployee}
+          onOpenChange={(open) => {
+            if (!open) setDeletingEmployee(null)
+          }}
+          onDeleted={() => {
+            setDeletingEmployee(null)
+            setNotice("Employee deleted.")
+            void loadEmployees()
+          }}
         />
       )}
     </section>

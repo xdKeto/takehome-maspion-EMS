@@ -20,10 +20,11 @@ type EmployeeTableProps = {
   employees: Employee[]
   onView: (employee: Employee) => void
   onEdit?: (employee: Employee) => void
+  onDelete?: (employee: Employee) => void
   isAdmin: boolean
 }
 
-const EmployeeTable = ({ employees, onView, onEdit, isAdmin }: EmployeeTableProps) => {
+const EmployeeTable = ({ employees, onView, onEdit, onDelete, isAdmin }: EmployeeTableProps) => {
   return (
     <div className="overflow-x-auto rounded-xl border bg-card">
       <Table className="min-w-[900px]">
@@ -70,6 +71,11 @@ const EmployeeTable = ({ employees, onView, onEdit, isAdmin }: EmployeeTableProp
                   {isAdmin && onEdit && (
                     <Button type="button" variant="secondary" size="sm" onClick={() => onEdit(employee)}>
                       Edit
+                    </Button>
+                  )}
+                  {isAdmin && onDelete && (
+                    <Button type="button" variant="destructive" size="sm" onClick={() => onDelete(employee)}>
+                      Delete
                     </Button>
                   )}
                 </div>

@@ -1,4 +1,5 @@
-import { apiFetch } from "@/lib/api-client"
+import { ApiError, apiFetch, BASE_API_URL } from "@/lib/api-client"
+import { authStorage } from "@/lib/auth-storage"
 import type { Department, Employee, EmployeeStatus } from "./employee.type"
 import type { EmployeeFormValues } from "./employee-validation"
 
@@ -49,4 +50,57 @@ const updateEmployee = async (id: number, body: EmployeeFormValues) => {
   })
 }
 
-export { createEmployee, getEmployee, listEmployees, listDepartments, updateEmployee }
+const deleteEmployee = async (id: number) => {
+  return apiFetch<{ success: boolean; message: string }>(`/api/employees/${id}`, {
+    method: "DELETE",
+  })
+}
+
+const exportEmployeesCsv = async () => {
+  const token = authStorage.getToken()
+  const headers = new Headers({ Accept: "text/csv" })
+  if (token) headers.set("Authorization", `Bearer ${token}`)
+
+  const response = await fetch(`${BASE_API_URL}/api/employees/export-csv`, { headers })
+  const payload = await response.text()
+
+  if (response.status === 401) {
+    authStorage.clear()
+    window.dispatchEvent(new Event("auth:expired"))
+  }
+
+  if (!response.ok) {
+    let message = `Request failed (${response.status})`
+    try {
+      const errorPayload: unknown = JSON.parse(payload)
+      if (typeof errorPayload === "object" && errorPayload !== null && "message" in errorPayload) {
+        message = String(errorPayload.message)
+      }
+    } catch {
+      if (payload) message = payload
+    }
+    throw new ApiError(response.status, message, payload)
+  }
+
+  const filenameHeader = response.headers.get("content-disposition")
+  const filenameMatch = filenameHeader?.match(/filename="?([^";]+)"?/i)
+  const filename = filenameMatch?.[1] ?? "employees.csv"
+  const url = URL.createObjectURL(new Blob([payload], { type: "text/csv;charset=utf-8" }))
+  const link = document.createElement("a")
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
+export {
+  createEmployee,
+  deleteEmployee,
+  exportEmployeesCsv,
+  getEmployee,
+  listEmployees,
+  listDepartments,
+  updateEmployee,
+}

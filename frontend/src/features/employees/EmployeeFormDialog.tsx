@@ -1,10 +1,11 @@
-import { useEffect, useState, type SubmitEvent } from "react"
+import { useEffect, useMemo, useState, type SubmitEvent } from "react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { avatarMap } from "@/lib/avatar-map"
+import { avatarMap, resolveAvatar } from "@/lib/avatar-map"
 import { createEmployee, updateEmployee } from "./employee.api"
 import type { Department, Employee, EmployeeStatus } from "./employee.type"
 import {
@@ -21,6 +22,8 @@ type EmployeeFormDialogProps = {
   onSaved: () => void
 }
 
+type AvatarCategory = "boy" | "girl"
+
 const statusOptions: { value: EmployeeStatus; label: string }[] = [
   { value: "FULL_TIME", label: "Full time" },
   { value: "PART_TIME", label: "Part time" },
@@ -36,6 +39,9 @@ const defaultValues: EmployeeFormValues = {
   department_id: 0,
   image: "boy/AV1.png",
 }
+
+const getAvatarCategory = (image: string): AvatarCategory =>
+  image.startsWith("girl/") ? "girl" : "boy"
 
 const getFormValues = (employee: Employee | null): EmployeeFormValues => employee
   ? {
@@ -64,14 +70,29 @@ const EmployeeFormDialog = ({
   const [errors, setErrors] = useState<EmployeeFormErrors>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [avatarCategory, setAvatarCategory] = useState<AvatarCategory>("boy")
   const isEditMode = employee !== null
+  const avatarOptions = useMemo(
+    () => Object.keys(avatarMap).filter((avatarKey) => avatarKey.startsWith(`${avatarCategory}/`)),
+    [avatarCategory],
+  )
 
   useEffect(() => {
     if (!open) return
-    setValues(getFormValues(employee))
+    const initialValues = getFormValues(employee)
+    setValues(initialValues)
+    setAvatarCategory(getAvatarCategory(initialValues.image))
     setErrors({})
     setFormError(null)
   }, [employee, open])
+
+  const handleAvatarCategoryChange = (category: AvatarCategory) => {
+    setAvatarCategory(category)
+    if (!values.image.startsWith(`${category}/`)) {
+      const firstAvatar = category === "boy" ? "boy/AV1.png" : "girl/AV51.png"
+      updateField("image", firstAvatar)
+    }
+  }
 
   const updateField = <K extends keyof EmployeeFormValues>(key: K, value: EmployeeFormValues[K]) => {
     setValues((currentValues) => ({ ...currentValues, [key]: value }))
@@ -146,11 +167,54 @@ const EmployeeFormDialog = ({
               </select>
               <FieldError message={errors.department_id} />
             </div>
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="employee-avatar">Avatar</Label>
-              <select id="employee-avatar" value={values.image} onChange={(event) => updateField("image", event.target.value)} disabled={submitting} className="h-10 w-full border border-transparent border-b-input bg-transparent px-0 text-sm outline-none focus-visible:border-b-ring">
-                {Object.keys(avatarMap).map((avatarKey) => <option key={avatarKey} value={avatarKey}>{avatarKey}</option>)}
-              </select>
+            <div className="space-y-3 sm:col-span-2">
+              <div>
+                <Label>Avatar</Label>
+                <p className="mt-1 text-xs text-muted-foreground">Pick Avatar</p>
+              </div>
+              <div className="flex gap-2" role="tablist" aria-label="Kategori avatar">
+                {(["boy", "girl"] as AvatarCategory[]).map((category) => (
+                  <Button
+                    key={category}
+                    type="button"
+                    variant={avatarCategory === category ? "default" : "outline"}
+                    size="sm"
+                    role="tab"
+                    aria-selected={avatarCategory === category}
+                    onClick={() => handleAvatarCategoryChange(category)}
+                    disabled={submitting}
+                  >
+                    {category === "boy" ? "Boy" : "Girl"}
+                  </Button>
+                ))}
+              </div>
+              <div className="flex items-center gap-4 border border-border/70 bg-muted/30 p-3">
+                <Avatar className="size-20">
+                  <AvatarImage src={resolveAvatar(values.image)} alt="" />
+                  <AvatarFallback>{values.image.replace(".png", "").split("/").pop() ?? "AV"}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-medium">Picked Avatar</p>
+                  <p className="text-xs text-muted-foreground">{values.image}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-5 gap-2 sm:grid-cols-10" role="listbox" aria-label="Pilihan avatar">
+                {avatarOptions.map((avatarKey) => (
+                  <button
+                    key={avatarKey}
+                    type="button"
+                    role="option"
+                    aria-selected={values.image === avatarKey}
+                    aria-label={`Pilih avatar ${avatarKey}`}
+                    title={avatarKey}
+                    onClick={() => updateField("image", avatarKey)}
+                    disabled={submitting}
+                    className={`rounded-none border p-1 transition-colors focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 ${values.image === avatarKey ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/60"}`}
+                  >
+                    <img src={resolveAvatar(avatarKey)} alt="" className="aspect-square w-full object-cover" />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <DialogFooter>
