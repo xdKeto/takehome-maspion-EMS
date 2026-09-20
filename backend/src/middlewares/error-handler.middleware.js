@@ -9,6 +9,13 @@ class ErrorHandler extends Error {
 }
 
 const errorHandler = (err, req, res, next) => {
+  if (err instanceof SyntaxError && err.type === "entity.parse.failed") {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid JSON body"
+    })
+  }
+
   const statusCode = err.statusCode ?? 500
 
   if (statusCode >= 500) {

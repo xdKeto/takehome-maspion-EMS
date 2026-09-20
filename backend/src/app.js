@@ -9,13 +9,20 @@ import cors from "cors"
 
 const app = express()
 
+// Vercel forwards the client IP through proxy headers; trust the first proxy.
+app.set("trust proxy", 1)
+
 app.use(cors({
   origin: [
     "http://localhost:5173",
     "https://frontend.vercel.app"
   ]
 }))
-app.use(express.json())
+// GET/HEAD requests do not need a JSON body; skip parsing empty proxy-forwarded bodies.
+app.use((req, res, next) => {
+  if (req.method === "GET" || req.method === "HEAD") return next()
+  return express.json()(req, res, next)
+})
 app.use(rateLimiter(10, 100)) // max 100 in 10min
 
 // daftar routes
