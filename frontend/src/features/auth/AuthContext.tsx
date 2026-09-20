@@ -25,8 +25,17 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setToken(null)
     }
 
+    const handleSessionUpdated = () => {
+      setUser(authStorage.getUser())
+      setToken(authStorage.getToken())
+    }
+
     window.addEventListener("auth:expired", handleExpired)
-    return () => window.removeEventListener("auth:expired", handleExpired)
+    window.addEventListener("auth:session-updated", handleSessionUpdated)
+    return () => {
+      window.removeEventListener("auth:expired", handleExpired)
+      window.removeEventListener("auth:session-updated", handleSessionUpdated)
+    }
   }, [])
 
   const login = async (username: string, password: string) => {
@@ -61,4 +70,3 @@ const useAuth = () => {
 }
 
 export { AuthProvider, useAuth }
-

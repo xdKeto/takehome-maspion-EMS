@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { resolveAvatar } from "@/lib/avatar-map"
+import { FiEdit2, FiTrash2 } from "react-icons/fi"
 import type { Employee } from "./employee.type"
 
 type EmployeeTableProps = {
@@ -69,13 +70,27 @@ const EmployeeTable = ({ employees, onView, onEdit, onDelete, isAdmin }: Employe
                     Detail
                   </Button>
                   {isAdmin && onEdit && (
-                    <Button type="button" variant="secondary" size="sm" onClick={() => onEdit(employee)}>
-                      Edit
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="icon-sm"
+                      onClick={() => onEdit(employee)}
+                      aria-label={`Edit ${employee.nama}`}
+                      title={`Edit ${employee.nama}`}
+                    >
+                      <FiEdit2 aria-hidden="true" />
                     </Button>
                   )}
                   {isAdmin && onDelete && (
-                    <Button type="button" variant="destructive" size="sm" onClick={() => onDelete(employee)}>
-                      Delete
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon-sm"
+                      onClick={() => onDelete(employee)}
+                      aria-label={`Delete ${employee.nama}`}
+                      title={`Delete ${employee.nama}`}
+                    >
+                      <FiTrash2 aria-hidden="true" />
                     </Button>
                   )}
                 </div>

@@ -158,7 +158,6 @@ const EmployeePage = () => {
     <section className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">Employee Management</p>
           <h1 className="font-heading text-3xl font-bold">Employees</h1>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -182,15 +181,13 @@ const EmployeePage = () => {
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
             placeholder="Search for name, email, phone, or position"
-            aria-label=""
             className="min-w-0 flex-1 sm:min-w-60"
           />
 
           <select
             value={query.department_id ? String(query.department_id) : ""}
             onChange={(event) => updateQuery("department_id", event.target.value ? Number(event.target.value) : undefined)}
-            aria-label="Filter department"
-            className="h-10 min-w-0 rounded-none border border-b-input bg-transparent px-0 text-sm outline-none focus-visible:border-b-ring sm:min-w-44"
+            className="h-10 min-w-0 rounded-none border border-b-input bg-transparent px-2 text-sm outline-none focus-visible:border-b-ring sm:min-w-44"
           >
             <option value="">All Departments</option>
             {departments.map((department) => (
@@ -203,8 +200,7 @@ const EmployeePage = () => {
           <select
             value={query.status ?? ""}
             onChange={(event) => updateQuery("status", (event.target.value || undefined) as EmployeeStatus | undefined)}
-            aria-label="Filter status"
-            className="h-10 min-w-0 rounded-none border border-b-input bg-transparent px-0 text-sm outline-none focus-visible:border-b-ring sm:min-w-36"
+            className="h-10 min-w-0 rounded-none border border-b-input bg-transparent px-2 text-sm outline-none focus-visible:border-b-ring sm:min-w-36"
           >
             <option value="">All Status</option>
             {statusOptions.map((status) => (
@@ -221,8 +217,7 @@ const EmployeePage = () => {
             <select
               value={selectedSortBy}
               onChange={(event) => updateQuery("sort_by", event.target.value as EmployeeSortField)}
-              className="h-10 min-w-0 flex-1 rounded-none border border-b-input bg-transparent px-0 text-sm outline-none focus-visible:border-b-ring"
-              aria-label="Kolom sorting"
+              className="h-10 min-w-0 flex-1 rounded-none border border-b-input bg-transparent px-2 text-sm outline-none focus-visible:border-b-ring"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -235,8 +230,7 @@ const EmployeePage = () => {
           <select
             value={selectedSortOrder}
             onChange={(event) => updateQuery("sort_order", event.target.value as "asc" | "desc")}
-            aria-label="Arah sorting"
-            className="h-10 min-w-0 rounded-none border border-b-input bg-transparent px-0 text-sm outline-none focus-visible:border-b-ring sm:min-w-32"
+            className="h-10 min-w-0 rounded-none border border-b-input bg-transparent px-2 text-sm outline-none focus-visible:border-b-ring sm:min-w-32"
           >
             <option value="asc">(A-Z)</option>
             <option value="desc">(Z-A)</option>

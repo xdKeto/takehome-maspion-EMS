@@ -29,7 +29,7 @@ const Topbar = () => {
           <span className="hidden text-muted-foreground sm:inline">{user?.username} · {user?.role}</span>
           {isAdmin && (
             <Button type="button" variant="outline" size="sm" onClick={() => setUserDialogOpen(true)}>
-              Tambah User
+              Add User
             </Button>
           )}
           <Button type="button" variant="outline" size="sm" onClick={handleLogout}>Logout</Button>
