@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { EyeIcon, EyeSlashIcon } from "@phosphor-icons/react"
 import { ApiError } from "@/lib/api-client"
 import { useAuth } from "./AuthContext"
 
@@ -13,6 +14,7 @@ export function LoginPage() {
   const { user, login } = useAuth()
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -63,22 +65,37 @@ export function LoginPage() {
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 disabled={submitting}
-                placeholder="contoh: admin"
+                placeholder="Enter username"
               />
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                disabled={submitting}
-                placeholder="Masukkan password"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  disabled={submitting}
+                  placeholder="Enter password"
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  className="absolute right-0 bottom-1"
+                  onClick={() => setShowPassword((current) => !current)}
+                  disabled={submitting}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                </Button>
+              </div>
             </div>
 
             <Button type="submit" className="w-full" disabled={submitting}>
