@@ -1,18 +1,23 @@
 import { authStorage } from "./auth-storage"
 
-const BASE_API_URL = import.meta.env.VITE_API_URL 
+const BASE_API_URL = import.meta.env.VITE_API_URL
 
-export class ApiError extends Error {
-  constructor(public status: number, message: string, public details?: unknown) {
+class ApiError extends Error {
+  status: number
+  details?: unknown
+
+  constructor(status: number, message: string, details?: unknown) {
     super(message)
+    this.name = "ApiError"
+    this.status = status
+    this.details = details
   }
 }
 
-export async function fetchAPI<T>(path: string, init: RequestInit = {}): Promise<T> {
+const apiFetch = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
   const token = authStorage.getToken()
   const headers = new Headers(init.headers)
 
-  // s
   headers.set("Accept", "application/json")
   if (init.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json")
@@ -25,7 +30,7 @@ export async function fetchAPI<T>(path: string, init: RequestInit = {}): Promise
   const contentType = response.headers.get("content-type") ?? ""
   const payload = contentType.includes("application/json") ? await response.json() : await response.text()
 
-  if (response.status == 401) {
+  if (response.status === 401) {
     authStorage.clear()
     window.dispatchEvent(new Event("auth:expired"))
   }
@@ -38,5 +43,9 @@ export async function fetchAPI<T>(path: string, init: RequestInit = {}): Promise
 
   return payload as T
 }
+
+export const fetchAPI = apiFetch
+
+export { ApiError }
 
 export { BASE_API_URL }

@@ -1,7 +1,12 @@
 
+import AppProviders from "@/app/providers"
+import AppRoutes from "@/app/router"
+
 const App = () => {
   return (
-    <div>App</div>
+    <AppProviders>
+      <AppRoutes />
+    </AppProviders>
   )
 }
 
