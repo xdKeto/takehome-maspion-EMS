@@ -3,7 +3,7 @@ import prisma from "../../database/index"
 const getEmployees = async ({
   where = {},
   orderBy = { id: "asc" }
-}) => {
+} = {}) => {
   const employees = await prisma.employee.findMany({
     where, orderBy,
     include: {
@@ -79,7 +79,7 @@ const deleteEmployee = async (id) => {
       id: id
     }
   })
-  
+
   return
 }
 

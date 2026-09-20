@@ -63,6 +63,21 @@ router.get("/", checkToken, async (req, res, next) => {
   }
 })
 
+router.get("/export-csv", checkToken, async (req, res, next) => {
+  try {
+    const employees = await getEmployees()
+    const csv = convertToCSV(employees)
+    const filename = `employees-export-${new Date().toISOString().slice(0, 10)}.csv`
+
+    res.status(200).set({
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${filename}"`
+    }).send(csv)
+  } catch (e) {
+    next(e)
+  }
+})
+
 router.get("/:id", checkToken, async (req, res, next) => {
   try {
     const id = Number(req.params.id)
@@ -79,7 +94,6 @@ router.get("/:id", checkToken, async (req, res, next) => {
     next(e)
   }
 })
-
 
 router.post("/", checkToken, checkRole("admin"), async (req, res, next) => {
   const data = req.body
@@ -140,20 +154,6 @@ router.delete("/:id", checkToken, checkRole("admin"), async (req, res, next) => 
   }
 })
 
-router.get("/export-csv", checkToken, async (req, res, next) => {
-  try {
-    const employees = await getEmployees()
-    const csv = convertToCSV(employees)
-    const filename = `employees-export-${new Date().toISOString().slice(0, 10)}.csv`
-
-    res.status(200).set({
-      "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="${filename}"`
-    }).send(csv)
-  } catch (e) {
-    next(e)
-  }
-})
 
 export {
   router as employeeRouter
@@ -161,6 +161,7 @@ export {
 
 const email_regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const status_enum = ["FULL_TIME", "PART_TIME", "KELUAR"]
+const phoneRegex = /^\+?[0-9][0-9\s-]{7,20}$/
 
 function validateEmployeeData(data = {}) {
   const errors = {}
@@ -185,6 +186,10 @@ function validateEmployeeData(data = {}) {
 
   if (typeof data.email === "string" && data.email.trim() !== "" && !email_regex.test(data.email.trim())) {
     errors.email = "Invalid email format"
+  }
+  
+  if (typeof data.no_telp === "string" && data.no_telp.trim() !== "" && !phoneRegex.test(data.no_telp.trim())) {
+    errors.no_telp = "Invalid phone format"
   }
 
   if (!Number.isInteger(data.department_id) || data.department_id <= 0) {
