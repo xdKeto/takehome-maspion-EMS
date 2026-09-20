@@ -1,4 +1,4 @@
-import { getAuditLogs } from "./audit.repository"
+import { getAuditLogs } from "./audit.repository.js"
 
 const getLogs = async () => {
   const logs = await getAuditLogs()

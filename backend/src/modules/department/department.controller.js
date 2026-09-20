@@ -1,6 +1,6 @@
 import express from "express"
-import { getAllDepartments } from "./department.service"
-import { checkToken } from "../../middlewares/auth.middleware"
+import { getAllDepartments } from "./department.service.js"
+import { checkToken } from "../../middlewares/auth.middleware.js"
 
 const router = express.Router()
 

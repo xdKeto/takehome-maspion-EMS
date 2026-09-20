@@ -1,8 +1,8 @@
 import express from "express"
-import { createEmployee, deleteEmployee, getEmployeeByID, getEmployees, updateEmployee } from "./employee.service"
-import { ErrorHandler } from "../../middlewares/error-handler.middleware"
-import { checkToken, checkRole } from "../../middlewares/auth.middleware"
-import { convertToCSV } from "../../utils/csv-converter"
+import { createEmployee, deleteEmployee, getEmployeeByID, getEmployees, updateEmployee } from "./employee.service.js"
+import { ErrorHandler } from "../../middlewares/error-handler.middleware.js"
+import { checkToken, checkRole } from "../../middlewares/auth.middleware.js"
+import { convertToCSV } from "../../utils/csv-converter.js"
 
 const router = express.Router()
 

@@ -1,6 +1,6 @@
 import "dotenv/config"
 import bcrypt from "bcrypt"
-import prisma from "../database/index"
+import prisma from "../database/index.js"
 
 const username = process.env.ADMIN_USERNAME
 const password = process.env.ADMIN_PASSWORD

@@ -1,4 +1,4 @@
-import prisma from "../../database/index"
+import prisma from "../../database/index.js"
 
 const getAuditLogs = async () => {
   const logs = await prisma.auditLog.findMany({

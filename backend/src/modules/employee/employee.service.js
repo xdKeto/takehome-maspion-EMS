@@ -1,6 +1,6 @@
-import { ErrorHandler } from "../../middlewares/error-handler.middleware"
-import { addEmployee, editEmployee, findEmployeeByID, findEmployeeByKey, getEmployees as getEmployeesRepo, deleteEmployee as deleteEmployeeRepo } from "./employee.repository"
-import auditLog from "../../middlewares/audit.middleware"
+import { ErrorHandler } from "../../middlewares/error-handler.middleware.js"
+import { addEmployee, editEmployee, findEmployeeByID, findEmployeeByKey, getEmployees as getEmployeesRepo, deleteEmployee as deleteEmployeeRepo } from "./employee.repository.js"
+import auditLog from "../../middlewares/audit.middleware.js"
 
 const getEmployees = async (params) => {
   const employees = await getEmployeesRepo(params)

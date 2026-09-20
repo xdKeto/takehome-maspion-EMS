@@ -1,5 +1,5 @@
-import { ErrorHandler } from "../../middlewares/error-handler.middleware"
-import { createUser, findUserByUsername } from "./auth.repository"
+import { ErrorHandler } from "../../middlewares/error-handler.middleware.js"
+import { createUser, findUserByUsername } from "./auth.repository.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 

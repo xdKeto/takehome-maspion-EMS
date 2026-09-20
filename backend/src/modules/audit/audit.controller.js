@@ -1,6 +1,6 @@
 import express from "express"
-import { checkRole, checkToken } from "../../middlewares/auth.middleware"
-import { getLogs } from "./audit.service"
+import { checkRole, checkToken } from "../../middlewares/auth.middleware.js"
+import { getLogs } from "./audit.service.js"
 
 const router = express.Router()
 

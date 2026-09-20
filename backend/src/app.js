@@ -1,10 +1,10 @@
 import express from "express"
-import { employeeRouter } from "./modules/employee/employee.controller"
-import { departmentRouter } from "./modules/department/department.controller"
-import { authRouter } from "./modules/auth/auth.controller"
-import { rateLimiter } from "./middlewares/rate-limiter.middleware"
-import { errorHandler } from "./middlewares/error-handler.middleware"
-import { auditRouter } from "./modules/audit/audit.controller"
+import { employeeRouter } from "./modules/employee/employee.controller.js"
+import { departmentRouter } from "./modules/department/department.controller.js"
+import { authRouter } from "./modules/auth/auth.controller.js"
+import { rateLimiter } from "./middlewares/rate-limiter.middleware.js"
+import { errorHandler } from "./middlewares/error-handler.middleware.js"
+import { auditRouter } from "./modules/audit/audit.controller.js"
 import cors from "cors"
 
 const app = express()

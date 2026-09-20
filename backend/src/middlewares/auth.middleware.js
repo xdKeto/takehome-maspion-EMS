@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken"
-import { ErrorHandler } from "./error-handler.middleware"
+import { ErrorHandler } from "./error-handler.middleware.js"
 
 const checkToken = (req, res, next) => {
   try {

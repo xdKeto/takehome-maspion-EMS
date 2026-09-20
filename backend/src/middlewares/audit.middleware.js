@@ -1,4 +1,4 @@
-import prisma from "../database/index"
+import prisma from "../database/index.js"
 
 const sanitize = (value) => {
   const keys = new Set([

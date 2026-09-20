@@ -1,7 +1,7 @@
 import express from "express"
-import { loginUser, registerUser } from "./auth.service"
-import { checkRole, checkToken } from "../../middlewares/auth.middleware"
-import { ErrorHandler } from "../../middlewares/error-handler.middleware"
+import { loginUser, registerUser } from "./auth.service.js"
+import { checkRole, checkToken } from "../../middlewares/auth.middleware.js"
+import { ErrorHandler } from "../../middlewares/error-handler.middleware.js"
 
 const router = express.Router()
 

@@ -6,6 +6,7 @@
   "scripts": {
     "start": "tsx src/index.js",
     "dev": "nodemon --exec tsx src/index.js",
+    "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:format": "prisma format",

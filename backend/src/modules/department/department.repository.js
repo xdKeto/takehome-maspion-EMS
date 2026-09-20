@@ -1,4 +1,4 @@
-import prisma from "../../database/index"
+import prisma from "../../database/index.js"
 
 const getDepartments = async () => {
   const departments = prisma.department.findMany()
