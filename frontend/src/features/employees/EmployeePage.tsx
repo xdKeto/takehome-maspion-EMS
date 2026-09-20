@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useAuth } from "@/features/auth/AuthContext"
 import EmptyState from "@/components/shared/EmptyState"
 import ErrorState from "@/components/shared/ErrorState"
 import LoadingState from "@/components/shared/LoadingState"
 import { listDepartments, listEmployees, type EmployeeQuery, type EmployeeSortField } from "./employee.api"
+import EmployeeDetailDialog from "./EmployeeDetailDialog"
+import EmployeeFormDialog from "./EmployeeFormDialog"
 import EmployeeTable from "./EmployeeTable"
 import type { Department, Employee, EmployeeStatus } from "./employee.type"
 
@@ -28,6 +31,7 @@ const statusOptions: { value: EmployeeStatus; label: string }[] = [
 ]
 
 const EmployeePage = () => {
+  const { isAdmin } = useAuth()
   const [employees, setEmployees] = useState<Employee[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [query, setQuery] = useState<EmployeeQuery>(defaultQuery)
@@ -35,6 +39,9 @@ const EmployeePage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [departmentError, setDepartmentError] = useState<string | null>(null)
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null)
+  const [formOpen, setFormOpen] = useState(false)
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
   const requestIdRef = useRef(0)
 
   const loadEmployees = useCallback(async () => {
@@ -118,11 +125,28 @@ const EmployeePage = () => {
   const selectedSortBy = query.sort_by ?? "id"
   const selectedSortOrder = query.sort_order ?? "asc"
 
+  const openCreateDialog = () => {
+    setEditingEmployee(null)
+    setFormOpen(true)
+  }
+
+  const openEditDialog = (employee: Employee) => {
+    setEditingEmployee(employee)
+    setFormOpen(true)
+  }
+
   return (
     <section className="space-y-6">
-      <div>
-        <p className="text-sm text-muted-foreground">Employee Management</p>
-        <h1 className="font-heading text-3xl font-bold">Employees</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">Employee Management</p>
+          <h1 className="font-heading text-3xl font-bold">Employees</h1>
+        </div>
+        {isAdmin && (
+          <Button type="button" onClick={openCreateDialog} className="w-full sm:w-auto">
+            Tambah Employee
+          </Button>
+        )}
       </div>
 
       <div className="space-y-3 rounded-xl border bg-card p-4">
@@ -208,7 +232,30 @@ const EmployeePage = () => {
       )}
 
       {!loading && !error && employees.length > 0 && (
-        <EmployeeTable employees={employees} />
+        <EmployeeTable
+          employees={employees}
+          onView={(employee) => setSelectedEmployeeId(employee.id)}
+          onEdit={openEditDialog}
+          isAdmin={isAdmin}
+        />
+      )}
+
+      <EmployeeDetailDialog
+        employeeId={selectedEmployeeId}
+        open={selectedEmployeeId !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelectedEmployeeId(null)
+        }}
+      />
+
+      {isAdmin && (
+        <EmployeeFormDialog
+          open={formOpen}
+          employee={editingEmployee}
+          departments={departments}
+          onOpenChange={setFormOpen}
+          onSaved={() => void loadEmployees()}
+        />
       )}
     </section>
   )

@@ -12,14 +12,18 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { resolveAvatar } from "@/lib/avatar-map"
 import type { Employee } from "./employee.type"
 
 type EmployeeTableProps = {
   employees: Employee[]
+  onView: (employee: Employee) => void
+  onEdit?: (employee: Employee) => void
+  isAdmin: boolean
 }
 
-const EmployeeTable = ({ employees }: EmployeeTableProps) => {
+const EmployeeTable = ({ employees, onView, onEdit, isAdmin }: EmployeeTableProps) => {
   return (
     <div className="overflow-x-auto rounded-xl border bg-card">
       <Table className="min-w-[900px]">
@@ -31,6 +35,7 @@ const EmployeeTable = ({ employees }: EmployeeTableProps) => {
             <TableHead>Department</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Tanggal Masuk</TableHead>
+            <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -56,6 +61,18 @@ const EmployeeTable = ({ employees }: EmployeeTableProps) => {
               </TableCell>
               <TableCell>
                 {new Date(employee.tanggal_masuk).toLocaleDateString("id-ID")}
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="outline" size="sm" onClick={() => onView(employee)}>
+                    Detail
+                  </Button>
+                  {isAdmin && onEdit && (
+                    <Button type="button" variant="secondary" size="sm" onClick={() => onEdit(employee)}>
+                      Edit
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
