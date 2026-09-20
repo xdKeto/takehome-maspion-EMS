@@ -2,6 +2,7 @@ import express from "express"
 import { createEmployee, deleteEmployee, getEmployeeByID, getEmployees, updateEmployee } from "./employee.service"
 import { ErrorHandler } from "../../middlewares/error-handler.middleware"
 import { checkToken, checkRole } from "../../middlewares/auth.middleware"
+import { convertToCSV } from "../../utils/csv-converter"
 
 const router = express.Router()
 
@@ -134,6 +135,21 @@ router.delete("/:id", checkToken, checkRole("admin"), async (req, res, next) => 
     res.status(200).json({
       success: true, message: "Employee deleted successfully"
     })
+  } catch (e) {
+    next(e)
+  }
+})
+
+router.get("/export-csv", checkToken, async (req, res, next) => {
+  try {
+    const employees = await getEmployees()
+    const csv = convertToCSV(employees)
+    const filename = `employees-export-${new Date().toISOString().slice(0, 10)}.csv`
+
+    res.status(200).set({
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="${filename}"`
+    }).send(csv)
   } catch (e) {
     next(e)
   }
