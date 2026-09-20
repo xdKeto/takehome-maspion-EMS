@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import AppLayout from "@/components/layout/AppLayout"
-import { ApiDocumentationPage } from "@/features/api-documentation/ApiDocumentationPage"
-import { EmployeePage } from "@/features/employees/EmployeePage"
+import ApiDocumentationPage from "@/features/api-documentation/ApiDocumentationPage"
+import EmployeePage from "@/features/employees/EmployeePage"
 import { LoginPage } from "@/features/auth/LoginPage"
 import { ProtectedRoute } from "@/features/auth/ProtectedRoute"
 
