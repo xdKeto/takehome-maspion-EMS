@@ -46,6 +46,6 @@ const apiFetch = async <T>(path: string, init: RequestInit = {}): Promise<T> => 
 
 export const fetchAPI = apiFetch
 
-export { ApiError }
+export { ApiError, apiFetch }
 
 export { BASE_API_URL }
