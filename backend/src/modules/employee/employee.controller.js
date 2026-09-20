@@ -88,7 +88,7 @@ router.post("/", checkToken, checkRole("admin"), async (req, res, next) => {
       throw new ErrorHandler("Validation failed", 400, errors)
     }
 
-    const employee = await createEmployee(data)
+    const employee = await createEmployee(data, req)
 
     res.status(201).json({
       success: true, data: employee, message: "Employee added successfully"
@@ -97,7 +97,6 @@ router.post("/", checkToken, checkRole("admin"), async (req, res, next) => {
     next(e)
   }
 })
-
 
 router.put("/:id", checkToken, checkRole("admin"), async (req, res, next) => {
   const data = req.body
@@ -113,7 +112,7 @@ router.put("/:id", checkToken, checkRole("admin"), async (req, res, next) => {
       throw new ErrorHandler("ID must be a positive number", 400)
     }
 
-    const employee = await updateEmployee(id, data)
+    const employee = await updateEmployee(id, data, req)
 
     res.status(200).json({
       success: true, data: employee, message: "Employee updated successfully"
@@ -130,7 +129,7 @@ router.delete("/:id", checkToken, checkRole("admin"), async (req, res, next) => 
       throw new ErrorHandler("ID must be a positive number", 400)
     }
 
-    await deleteEmployee(id)
+    await deleteEmployee(id, req)
 
     res.status(200).json({
       success: true, message: "Employee deleted successfully"

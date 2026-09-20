@@ -1,5 +1,6 @@
 import { ErrorHandler } from "../../middlewares/error-handler.middleware"
 import { addEmployee, editEmployee, findEmployeeByID, findEmployeeByKey, getEmployees as getEmployeesRepo, deleteEmployee as deleteEmployeeRepo } from "./employee.repository"
+import auditLog from "../../middlewares/audit.middleware"
 
 const getEmployees = async (params) => {
   const employees = await getEmployeesRepo(params)
@@ -18,7 +19,7 @@ const getEmployeeByID = async (id) => {
   return employee
 }
 
-const createEmployee = async (data) => {
+const createEmployee = async (data, req) => {
   const check = await findEmployeeByKey({
     OR: [
       { email: data.email },
@@ -32,20 +33,39 @@ const createEmployee = async (data) => {
 
   const employee = await addEmployee(data)
 
-  return employee
-}
-
-const updateEmployee = async (id, data) => {
-  await getEmployeeByID(id)
-
-  const employee = await editEmployee(id, data)
+  await auditLog({
+    req, target: "employee", target_id: employee.id, action: "CREATE", changes: { after: employee }
+  })
 
   return employee
 }
 
-const deleteEmployee = async (id) => {
-  await getEmployeeByID(id)
+const updateEmployee = async (id, data, req) => {
+  const before = await getEmployeeByID(id)
+  const after = await editEmployee(id, data)
+
+  await auditLog({
+    req,
+    target: "employee",
+    target_id: id,
+    action: "UPDATE",
+    changes: { before, after }
+  })
+
+  return after
+}
+
+const deleteEmployee = async (id, req) => {
+  const before = await getEmployeeByID(id)
   await deleteEmployeeRepo(id)
+
+  await auditLog({
+    req,
+    target: "employee",
+    target_id: id,
+    action: "DELETE",
+    changes: { before }
+  })
 
   return
 }
