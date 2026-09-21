@@ -15,8 +15,8 @@ app.set("trust proxy", 1)
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://https://takehome-maspion-ems-frontend.vercel.app",
-    
+    "https://takehome-maspion-ems-frontend.vercel.app",
+
   ]
 }))
 
