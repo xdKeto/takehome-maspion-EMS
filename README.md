@@ -6,7 +6,7 @@ Employee Management System untuk mengelola data karyawan, departemen, akun pengg
 
 - Backend API: [takehome-maspion-ems-backend.vercel.app](https://takehome-maspion-ems-backend.vercel.app)
 - Health check: [API health check](https://takehome-maspion-ems-backend.vercel.app/health)
-- Frontend: menyusul
+- Frontend: [takehome-maspion-ems-frontend.vercel.app](https://takehome-maspion-ems-frontend.vercel.app)
 
 ## Demo account
 - Viewer = {
